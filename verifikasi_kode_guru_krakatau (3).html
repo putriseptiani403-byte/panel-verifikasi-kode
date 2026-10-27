@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panel Verifikasi Kode Rahasia — Laptop Guru</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Staatliches&family=Nunito+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --sky-dark:#1B1035;
+    --sky-dark2:#2A1B4D;
+    --cream:#FDEBD0;
+    --fire-orange:#E8622C;
+    --fire-gold:#F4A93F;
+    --fire-light:#FBCB6E;
+    --ok-green:#4C8C4A;
+    --ink:#2B1608;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; font-family:'Nunito Sans',sans-serif; color:var(--cream);
+    background:
+      radial-gradient(circle at 15% 0%, rgba(232,98,44,.16), transparent 45%),
+      radial-gradient(circle at 88% 8%, rgba(244,169,63,.12), transparent 42%),
+      linear-gradient(180deg,var(--sky-dark2) 0%, var(--sky-dark) 100%);
+    min-height:100vh;
+  }
+  .display{font-family:'Staatliches',cursive;}
+  header{max-width:640px; margin:0 auto; padding:36px 20px 6px; text-align:center;}
+  header .eyebrow{font-size:11.5px; letter-spacing:2px; font-weight:800; color:var(--fire-gold); text-transform:uppercase;}
+  header h1{font-family:'Staatliches',cursive; font-size:36px; margin:6px 0 6px; color:var(--cream);}
+  header p{font-size:13.5px; opacity:.85; margin:0 0 4px;}
+
+  .settings{max-width:640px; margin:0 auto; padding:0 20px; text-align:right;}
+  .settings summary{cursor:pointer; font-size:12.5px; color:var(--fire-light); display:inline-block; user-select:none;}
+  .settings-body{
+    background:#2a1e46; border:1px solid #4c3a72; border-radius:10px; padding:12px 16px; margin-top:8px;
+    text-align:left; font-size:13px; display:flex; gap:10px; align-items:center; flex-wrap:wrap;
+  }
+  .settings-body input{
+    background:#150c2c; border:1px solid #4c3a72; color:var(--cream); border-radius:8px; padding:8px 10px;
+    font-size:14px; width:110px; font-family:'Staatliches',cursive; letter-spacing:4px; text-align:center;
+  }
+  .settings-body button{
+    background:var(--fire-gold); color:#2a1b0c; border:none; border-radius:8px; padding:8px 14px; font-weight:800; cursor:pointer;
+  }
+
+  .panel{max-width:520px; margin:22px auto 10px; padding:0 20px;}
+  .card{
+    background:var(--cream); color:var(--ink); border-radius:20px; padding:26px 24px 22px;
+    box-shadow:0 10px 0 rgba(6,3,14,.5); border:3px solid transparent; transition:border-color .25s ease, background .25s ease;
+  }
+  .card.ok{border-color:var(--ok-green); background:#e9f5e6;}
+  .card.bad{border-color:var(--fire-orange); background:#fbe9e3;}
+  label{display:block; font-weight:800; font-size:12px; letter-spacing:.5px; text-transform:uppercase; color:#8a5a1f; margin:0 0 6px;}
+  input[type=text]{
+    width:100%; border:2px solid #e2c896; background:#fffaf0; color:var(--ink); border-radius:10px;
+    padding:12px 14px; font-family:'Nunito Sans',sans-serif; font-weight:700; font-size:16px;
+  }
+  input[type=text]:focus{outline:none; border-color:var(--fire-gold);}
+  #kodeInput{font-family:'Staatliches',cursive; letter-spacing:10px; font-size:26px; text-align:center;}
+  .kode-row{display:flex; gap:8px; align-items:stretch;}
+  .kode-row input{flex:1; min-width:0;}
+  .toggle-visibility{
+    flex:none; width:48px; border:2px solid #e2c896; background:#fffaf0; border-radius:10px;
+    font-size:18px; cursor:pointer; color:var(--ink);
+  }
+  .toggle-visibility:active{transform:translateY(1px);}
+  .field{margin-bottom:14px;}
+  .verif-btn{
+    width:100%; border:none; border-radius:11px; padding:14px; font-weight:800; cursor:pointer;
+    background:var(--fire-orange); color:#fff; font-size:16px; box-shadow:0 4px 0 #a13e17; font-family:'Nunito Sans',sans-serif;
+    margin-top:4px;
+  }
+  .verif-btn:active{transform:translateY(3px); box-shadow:none;}
+
+  .result-banner{margin-top:16px; border-radius:12px; padding:16px; text-align:center; font-weight:800; font-size:17px; display:none;}
+  .result-banner.ok{display:block; background:var(--ok-green); color:#fff;}
+  .result-banner.bad{display:block; background:var(--fire-orange); color:#fff;}
+  .result-banner .sub{display:block; font-weight:600; font-size:13px; margin-top:4px; opacity:.9;}
+
+  .winner-box{max-width:520px; margin:16px auto 0; padding:0 20px;}
+  .winner-card{
+    background:linear-gradient(135deg,var(--fire-gold),var(--fire-light)); color:#2a1b0c; border-radius:16px;
+    padding:14px 18px; display:none; align-items:center; gap:12px; box-shadow:0 6px 0 #a8781f;
+  }
+  .winner-card.show{display:flex;}
+  .winner-card .trophy{font-size:30px;}
+  .winner-card b{font-family:'Staatliches',cursive; font-size:20px; letter-spacing:.5px;}
+
+  .log{max-width:520px; margin:20px auto 40px; padding:0 20px;}
+  .log h4{font-size:12px; letter-spacing:1.2px; text-transform:uppercase; color:var(--fire-light); margin:0 0 10px; font-weight:800;}
+  .log-item{
+    display:flex; justify-content:space-between; align-items:center; gap:10px;
+    background:#2a1e46; border:1px solid #4c3a72; border-radius:10px; padding:9px 13px; margin-bottom:8px; font-size:13.5px;
+  }
+  .log-item .g{font-weight:800;}
+  .log-item .tag{font-size:11px; font-weight:800; padding:3px 9px; border-radius:999px;}
+  .tag.ok{background:var(--ok-green); color:#fff;}
+  .tag.bad{background:var(--fire-orange); color:#fff;}
+  .tag.first{background:var(--fire-gold); color:#2a1b0c;}
+  .log-empty{font-size:13px; opacity:.55; text-align:center; padding:10px 0;}
+
+  footer.note{text-align:center; font-size:11.5px; color:var(--cream); opacity:.45; padding:0 20px 30px;}
+
+  /* ---------- ILUSTRASI GERBANG & PANGGUNG FESTIVAL ---------- */
+  .gate-overlay{
+    position:fixed; inset:0; z-index:200; display:none; align-items:center; justify-content:center;
+    background:rgba(6,3,14,.88);
+  }
+  .gate-overlay.show{display:flex;}
+  .stage-scene{
+    position:absolute; inset:0; overflow:hidden;
+    background:
+      radial-gradient(ellipse at 50% 115%, rgba(232,98,44,.35), transparent 60%),
+      linear-gradient(180deg,#0d0620 0%, #1B1035 55%, #2A1B4D 100%);
+  }
+  .stage-scene .star{position:absolute; width:3px; height:3px; background:#fff; border-radius:50%; opacity:.7; animation:twinkle 2.4s ease-in-out infinite;}
+  @keyframes twinkle{ 0%,100%{opacity:.2;} 50%{opacity:.9;} }
+  .stage-scene .volcano{
+    position:absolute; bottom:0; left:50%; transform:translateX(-50%);
+    width:0; height:0; border-left:170px solid transparent; border-right:170px solid transparent;
+    border-bottom:150px solid #241238;
+  }
+  .stage-scene .lava-glow{
+    position:absolute; bottom:148px; left:50%; transform:translateX(-50%);
+    width:26px; height:26px; border-radius:50%; background:var(--fire-gold);
+    box-shadow:0 0 30px 14px rgba(244,169,63,.85), 0 0 60px 30px rgba(232,98,44,.5);
+    animation:glowpulse 1.6s ease-in-out infinite;
+  }
+  @keyframes glowpulse{ 0%,100%{opacity:.7; transform:translateX(-50%) scale(1);} 50%{opacity:1; transform:translateX(-50%) scale(1.25);} }
+  .stage-scene .spotlight{
+    position:absolute; top:-40px; width:0; height:0;
+    border-left:60px solid transparent; border-right:60px solid transparent; border-top:420px solid rgba(244,169,63,.16);
+    transform-origin:top center;
+  }
+  .spotlight.left{left:12%; transform:rotate(18deg);}
+  .spotlight.right{right:12%; transform:rotate(-18deg);}
+  .stage-scene .platform{
+    position:absolute; bottom:0; left:50%; transform:translateX(-50%);
+    width:78%; max-width:420px; height:26px; background:linear-gradient(180deg,#4a3369,#2a1e46);
+    border-radius:6px 6px 0 0; box-shadow:0 -4px 0 var(--fire-gold);
+  }
+  .stage-scene .banner{
+    position:absolute; top:18%; left:50%; transform:translateX(-50%); text-align:center;
+    font-family:'Staatliches',cursive; letter-spacing:2px; color:var(--fire-gold); font-size:22px;
+    text-shadow:0 0 14px rgba(244,169,63,.7); white-space:nowrap;
+  }
+  .stage-scene .banner span{display:block; font-size:12px; color:var(--cream); letter-spacing:1.5px; margin-top:4px; opacity:.85;}
+
+  .firework{position:absolute; width:6px; height:6px; border-radius:50%; opacity:0; pointer-events:none;}
+  @keyframes fwburst{
+    0%{transform:translate(0,0) scale(0.3); opacity:1;}
+    100%{transform:var(--fwend) scale(1); opacity:0;}
+  }
+
+  .confetti-piece{
+    position:absolute; top:-20px; width:8px; height:14px; opacity:.9;
+    animation:confettifall linear forwards;
+  }
+  @keyframes confettifall{
+    0%{transform:translateY(0) rotate(0deg); opacity:1;}
+    100%{transform:translateY(115vh) rotate(540deg); opacity:.9;}
+  }
+
+  .gate-door{
+    position:absolute; top:0; bottom:0; width:50%; z-index:5;
+    background:
+      repeating-linear-gradient(90deg, #4a3369 0 3px, #3a2a5c 3px 6px),
+      linear-gradient(135deg,#3a2a5c,#241238);
+    border-color:#6b5236; transition:transform 1.1s cubic-bezier(.7,-0.1,.25,1.05);
+    display:flex; align-items:center; box-shadow:inset 0 0 40px rgba(0,0,0,.5);
+  }
+  .gate-door.left{left:0; border-right:4px solid var(--fire-gold); justify-content:flex-end; padding-right:6px;}
+  .gate-door.right{right:0; border-left:4px solid var(--fire-gold); justify-content:flex-start; padding-left:6px;}
+  .gate-door .lockicon{font-size:30px; filter:drop-shadow(0 3px 4px rgba(0,0,0,.5));}
+  .gate-overlay.open .gate-door.left{transform:translateX(-102%);}
+  .gate-overlay.open .gate-door.right{transform:translateX(102%);}
+
+  .gate-caption{
+    position:absolute; bottom:8%; left:50%; transform:translateX(-50%); z-index:10;
+    background:var(--cream); color:var(--ink); font-family:'Staatliches',cursive; font-size:19px;
+    padding:12px 22px; border-radius:14px; box-shadow:0 8px 0 rgba(6,3,14,.4); text-align:center;
+    opacity:0; transition:opacity .5s ease .6s; white-space:nowrap;
+  }
+  .gate-overlay.open .gate-caption{opacity:1;}
+  .close-gate{
+    position:absolute; top:18px; right:18px; z-index:20; background:rgba(255,255,255,.15); color:var(--cream);
+    border:2px solid rgba(255,255,255,.3); border-radius:50%; width:36px; height:36px; font-size:18px; cursor:pointer;
+  }
+  @media(max-width:520px){ .gate-caption{font-size:15px; white-space:normal; max-width:88vw;} .stage-scene .banner{font-size:17px;} }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">Panel Guru · Tahap MMP 3 — Latihan Terkontrol</div>
+  <h1>Verifikasi Kode Rahasia</h1>
+  <p>Misteri Kode Festival Krakatau — Barisan &amp; Deret Aritmetika</p>
+</header>
+
+<div class="settings">
+  <details>
+    <summary>⚙️ Pengaturan kode jawaban (guru)</summary>
+    <div class="settings-body">
+      <span>Kode rahasia yang benar:</span>
+      <input type="password" id="masterCode" value="339" maxlength="3" autocomplete="off">
+      <button id="saveCode">Simpan</button>
+      <span id="saveMsg" style="font-size:12px; color:var(--fire-light);"></span>
+    </div>
+  </details>
+</div>
+
+<div class="winner-box">
+  <div class="winner-card" id="winnerCard">
+    <div class="trophy">🏆</div>
+    <div>Kelompok Tercepat: <b id="winnerName">-</b></div>
+  </div>
+</div>
+
+<div class="panel">
+  <div class="card" id="mainCard">
+    <div class="field">
+      <label>Nama Kelompok</label>
+      <input type="text" id="namaInput" placeholder="Contoh: Kelompok 5">
+    </div>
+    <div class="field">
+      <label>Kode Rahasia (3 digit)</label>
+      <div class="kode-row">
+        <input type="password" id="kodeInput" maxlength="3" placeholder="---" autocomplete="off">
+        <button type="button" class="toggle-visibility" id="toggleKode" title="Tampilkan/sembunyikan (hanya di layar guru)">👁️</button>
+      </div>
+    </div>
+    <button class="verif-btn" id="verifBtn">🔍 Verifikasi Kode</button>
+
+    <div class="result-banner" id="resultBanner">
+      <span id="resultMain"></span>
+      <span class="sub" id="resultSub"></span>
+    </div>
+  </div>
+</div>
+
+<div class="log">
+  <h4>Riwayat Percobaan</h4>
+  <div id="logList"><div class="log-empty">Belum ada kelompok yang mencoba.</div></div>
+</div>
+
+<footer class="note">Satu kolom di depan kelas — kelompok bergiliran maju memasukkan nama &amp; kode rahasia mereka.</footer>
+
+<!-- ============ ILUSTRASI GERBANG & PANGGUNG FESTIVAL ============ -->
+<div class="gate-overlay" id="gateOverlay">
+  <button class="close-gate" id="closeGateBtn">✕</button>
+  <div class="stage-scene">
+    <div class="volcano"></div>
+    <div class="lava-glow"></div>
+    <div class="spotlight left"></div>
+    <div class="spotlight right"></div>
+    <div class="platform"></div>
+    <div class="banner">🎪 FESTIVAL KRAKATAU<span>Panggung Utama · Kotabumi</span></div>
+    <div id="starsLayer"></div>
+    <div id="fireworksLayer"></div>
+    <div id="confettiLayer"></div>
+  </div>
+  <div class="gate-door left"><span class="lockicon" id="lockLeft">🔒</span></div>
+  <div class="gate-door right"><span class="lockicon" id="lockRight">🔒</span></div>
+  <div class="gate-caption" id="gateCaption">🎉 Kode Rahasia Benar — Panggung Utama Festival Krakatau Terbuka! 🎉</div>
+</div>
+
+<script>
+let MASTER_CODE = "339";
+let winnerLocked = false;
+const history = [];
+
+// ---------------- AUDIO ----------------
+let actx;
+function ctx(){ if(!actx){ actx = new (window.AudioContext||window.webkitAudioContext)(); } return actx; }
+function beep(freq, dur, type='sine', delay=0, vol=0.2){
+  const c = ctx();
+  const o = c.createOscillator();
+  const g = c.createGain();
+  o.type = type; o.frequency.value = freq;
+  o.connect(g); g.connect(c.destination);
+  const t0 = c.currentTime + delay;
+  g.gain.setValueAtTime(0.0001, t0);
+  g.gain.exponentialRampToValueAtTime(vol, t0+0.02);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0+dur);
+  o.start(t0); o.stop(t0+dur+0.05);
+}
+function playOk(){ beep(523.25,0.15,'triangle',0); beep(659.25,0.15,'triangle',0.13); beep(783.99,0.25,'triangle',0.26); }
+function playBad(){ beep(190,0.3,'sawtooth',0,0.16); beep(150,0.34,'sawtooth',0.06,0.16); }
+function playFanfare(){ [523,659,784,1046,1318].forEach((f,i)=>beep(f,0.22,'triangle',i*0.12)); }
+
+function noiseBoom(delay=0, vol=0.28){
+  const c = ctx();
+  const bufSize = c.sampleRate * 0.35;
+  const buf = c.createBuffer(1, bufSize, c.sampleRate);
+  const data = buf.getChannelData(0);
+  for(let i=0;i<bufSize;i++){ data[i] = (Math.random()*2-1) * Math.pow(1-i/bufSize, 2.2); }
+  const src = c.createBufferSource();
+  src.buffer = buf;
+  const filt = c.createBiquadFilter();
+  filt.type = 'lowpass'; filt.frequency.value = 900;
+  const g = c.createGain();
+  const t0 = c.currentTime + delay;
+  g.gain.setValueAtTime(vol, t0);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0+0.35);
+  src.connect(filt); filt.connect(g); g.connect(c.destination);
+  src.start(t0);
+}
+function playCelebration(){
+  playFanfare();
+  [0.05,0.35,0.65,0.95].forEach(d=>{ beep(1200+Math.random()*300,0.06,'square',d,0.05); noiseBoom(d,0.22); });
+}
+
+// ---------------- ILUSTRASI: GERBANG & PANGGUNG FESTIVAL ----------------
+let starsInit = false;
+function initStars(){
+  if(starsInit) return; starsInit = true;
+  const layer = document.getElementById('starsLayer');
+  for(let i=0;i<28;i++){
+    const s = document.createElement('div');
+    s.className = 'star';
+    s.style.left = Math.random()*100 + '%';
+    s.style.top = Math.random()*55 + '%';
+    s.style.animationDelay = (Math.random()*2.4) + 's';
+    layer.appendChild(s);
+  }
+}
+const FW_COLORS = ['#F4A93F','#FBCB6E','#E8622C','#FDEBD0','#4C8C4A','#C1443B'];
+function spawnFireworks(){
+  const layer = document.getElementById('fireworksLayer');
+  layer.innerHTML = '';
+  const bursts = 5;
+  for(let b=0; b<bursts; b++){
+    const cx = 15 + Math.random()*70;
+    const cy = 15 + Math.random()*35;
+    const delay = b*0.35 + Math.random()*0.2;
+    const rays = 10;
+    for(let r=0;r<rays;r++){
+      const angle = (r/rays) * Math.PI * 2;
+      const dist = 38 + Math.random()*22;
+      const dx = Math.cos(angle)*dist, dy = Math.sin(angle)*dist;
+      const p = document.createElement('div');
+      p.className = 'firework';
+      p.style.left = cx + '%';
+      p.style.top = cy + '%';
+      p.style.background = FW_COLORS[Math.floor(Math.random()*FW_COLORS.length)];
+      p.style.setProperty('--fwend', `translate(${dx}px, ${dy}px)`);
+      p.style.animation = `fwburst .9s ease-out ${delay}s forwards`;
+      layer.appendChild(p);
+    }
+  }
+}
+function spawnConfetti(){
+  const layer = document.getElementById('confettiLayer');
+  layer.innerHTML = '';
+  const n = 40;
+  for(let i=0;i<n;i++){
+    const c = document.createElement('div');
+    c.className = 'confetti-piece';
+    c.style.left = Math.random()*100 + '%';
+    c.style.background = FW_COLORS[Math.floor(Math.random()*FW_COLORS.length)];
+    c.style.animationDuration = (2 + Math.random()*1.8) + 's';
+    c.style.animationDelay = (Math.random()*0.6) + 's';
+    layer.appendChild(c);
+  }
+}
+
+let gateAutoTimer = null;
+function showGateIllustration(){
+  const overlay = document.getElementById('gateOverlay');
+  initStars();
+  overlay.classList.remove('open');
+  overlay.classList.add('show');
+  document.getElementById('lockLeft').textContent = '🔒';
+  document.getElementById('lockRight').textContent = '🔒';
+  playCelebration();
+  requestAnimationFrame(()=>{
+    setTimeout(()=>{
+      overlay.classList.add('open');
+      document.getElementById('lockLeft').textContent = '🔓';
+      document.getElementById('lockRight').textContent = '🔓';
+      spawnFireworks();
+      spawnConfetti();
+    }, 150);
+  });
+  clearTimeout(gateAutoTimer);
+  gateAutoTimer = setTimeout(closeGateIllustration, 6500);
+}
+function closeGateIllustration(){
+  document.getElementById('gateOverlay').classList.remove('show','open');
+  clearTimeout(gateAutoTimer);
+}
+document.getElementById('closeGateBtn').addEventListener('click', closeGateIllustration);
+
+function renderLog(){
+  const wrap = document.getElementById('logList');
+  if(history.length===0){
+    wrap.innerHTML = '<div class="log-empty">Belum ada kelompok yang mencoba.</div>';
+    return;
+  }
+  wrap.innerHTML = history.slice().reverse().map(h=>`
+    <div class="log-item">
+      <span class="g">${h.nama}</span>
+      <span style="opacity:.7; letter-spacing:2px;">${'•'.repeat(h.kode.length)}</span>
+      <span class="tag ${h.first ? 'first' : (h.ok?'ok':'bad')}">${h.first ? '🏆 Tercepat' : (h.ok?'Benar':'Salah')}</span>
+    </div>
+  `).join('');
+}
+
+function verify(){
+  const nama = document.getElementById('namaInput').value.trim() || 'Tanpa nama';
+  const kode = document.getElementById('kodeInput').value.trim();
+  if(!kode){ return; }
+
+  const card = document.getElementById('mainCard');
+  const banner = document.getElementById('resultBanner');
+  const main = document.getElementById('resultMain');
+  const sub = document.getElementById('resultSub');
+  const correct = (kode === MASTER_CODE);
+
+  let isFirstWinner = false;
+  if(correct && !winnerLocked){
+    winnerLocked = true;
+    isFirstWinner = true;
+    document.getElementById('winnerCard').classList.add('show');
+    document.getElementById('winnerName').textContent = nama;
+  }
+
+  history.push({nama, kode, ok:correct, first:isFirstWinner});
+  renderLog();
+
+  card.classList.remove('ok','bad');
+  banner.classList.remove('ok','bad');
+
+  if(correct){
+    card.classList.add('ok');
+    banner.classList.add('ok');
+    main.textContent = isFirstWinner ? '✅ BENAR — SELAMAT, KALIAN TERCEPAT! 🏆' : '✅ BENAR — Panggung Utama berhasil dibuka!';
+    sub.textContent = isFirstWinner ? `${nama} tercatat sebagai kelompok tercepat.` : `${nama} menjawab dengan tepat.`;
+    document.getElementById('gateCaption').textContent = isFirstWinner
+      ? `🏆 ${nama} TERCEPAT — Panggung Festival Krakatau Siap! 🎉`
+      : `🎉 Panggung Utama Terbuka untuk ${nama} — Festival Krakatau Siap! 🎉`;
+    showGateIllustration();
+  } else {
+    card.classList.add('bad');
+    banner.classList.add('bad');
+    main.textContent = '❌ SALAH — Kode belum tepat';
+    sub.textContent = `${nama}, coba periksa kembali perhitungan kalian.`;
+    playBad();
+  }
+
+  document.getElementById('kodeInput').value = '';
+  document.getElementById('kodeInput').type = 'password';
+  document.getElementById('toggleKode').textContent = '👁️';
+  document.getElementById('kodeInput').focus();
+}
+
+document.getElementById('verifBtn').addEventListener('click', verify);
+document.getElementById('kodeInput').addEventListener('keydown', e=>{ if(e.key==='Enter') verify(); });
+document.getElementById('namaInput').addEventListener('keydown', e=>{ if(e.key==='Enter') document.getElementById('kodeInput').focus(); });
+
+document.getElementById('toggleKode').addEventListener('click', ()=>{
+  const inp = document.getElementById('kodeInput');
+  const btn = document.getElementById('toggleKode');
+  if(inp.type === 'password'){ inp.type = 'text'; btn.textContent = '🙈'; }
+  else { inp.type = 'password'; btn.textContent = '👁️'; }
+});
+
+document.getElementById('saveCode').addEventListener('click', ()=>{
+  const v = document.getElementById('masterCode').value.trim();
+  if(v.length){
+    MASTER_CODE = v;
+    document.getElementById('saveMsg').textContent = 'Tersimpan ✓';
+    setTimeout(()=>document.getElementById('saveMsg').textContent='', 1500);
+  }
+});
+</script>
+</body>
+</html>
